@@ -10,6 +10,7 @@ USER root
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    fpcalc \
     libvips42 \
     unzip \
     zip \
@@ -39,6 +40,9 @@ RUN install-php-extensions \
 
 # Copy application files
 COPY --chown=www-data:www-data . /var/www/html
+
+# Copy Caddyfile for FrankenPHP
+COPY --chown=www-data:www-data Caddyfile /etc/caddy/Caddyfile
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \

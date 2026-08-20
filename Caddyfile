@@ -1,0 +1,112 @@
+{
+    # Global options
+    admin off
+    email {$CADDY_EMAIL}
+
+    # Trust Cloudflare proxies for real IP headers
+    trusted_proxies cloudflare
+
+    # Performance
+    servers {
+        # HTTP/2 and HTTP/3
+        protocols h1 h2 h3
+    }
+}
+
+# HTTPS - Main domain (handles both API and WebSocket)
+{$APP_DOMAIN} {
+    # TLS via Cloudflare (assumes Cloudflare terminates SSL)
+    # If using Cloudflare Full SSL, uncomment next line:
+    # tls internal
+
+    # Security headers
+    header {
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent MIME sniffing
+        X-Content-Type-Options "nosniff"
+        # XSS protection
+        X-Frame-Options "SAMEORIGIN"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Permissions policy
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        # CSP for API (adjust as needed)
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' wss: https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';"
+    }
+
+    # Rate limiting (complementary to Laravel rate limits)
+    @api {
+        path /api/*
+    }
+    rate_limit @api {
+        zone api_limit
+        key {remote_host}
+        rate 100r/s
+        burst 200
+    }
+
+    @auth {
+        path /api/v1/auth/*
+    }
+    rate_limit @auth {
+        zone auth_limit
+        key {remote_host}
+        rate 10r/s
+        burst 20
+    }
+
+    # WebSocket / Reverb - pass through with upgrade support
+    @reverb {
+        path /app/*
+    }
+    reverse_proxy @reverb loops-reverb:8080 {
+        transport http {
+            # WebSocket support
+            versions h2c 1.1
+        }
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Main API - forward to FrankenPHP
+    reverse_proxy loops-app:8080 {
+        transport http {
+            versions h2c 1.1
+        }
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Client max body size for video uploads
+    client_max_body_size 500M
+
+    # Timeouts for video uploads
+    reverse_proxy {
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+        }
+    }
+}
+
+# WebSocket direct endpoint (if not using path-based routing)
+{$APP_DOMAIN}:8443 {
+    # TLS via Cloudflare
+    # tls internal
+
+    # Reverb WebSocket on separate port
+    reverse_proxy loops-reverb:8080 {
+        transport http {
+            versions h2c 1.1
+        }
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}

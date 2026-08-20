@@ -50,8 +50,7 @@ services:
       dockerfile: Dockerfile
     container_name: loops-app
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    # Ports handled by Caddy (80/443) - not exposing 8080 directly
     env_file:
       - .env
     environment:
@@ -71,6 +70,9 @@ services:
       AUTORUN_LARAVEL_ROUTE_CACHE: "true"
       AUTORUN_LARAVEL_VIEW_CACHE: "true"
       AUTORUN_LARAVEL_CONFIG_CACHE: "true"
+      # Caddy configuration
+      CADDY_EMAIL: "${CADDY_EMAIL}"
+      APP_DOMAIN: "${APP_DOMAIN}"
     volumes:
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
@@ -148,6 +150,46 @@ services:
     healthcheck:
       test: ["CMD", "healthcheck-schedule"]
       start_period: 10s
+    networks:
+      - loops-network
+
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: loops-reverb
+    restart: unless-stopped
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    env_file:
+      - .env
+    environment:
+      AUTORUN_ENABLED: "false"
+      AUTORUN_LARAVEL_MIGRATION: "false"
+      AUTORUN_LARAVEL_MIGRATION_ISOLATION: "false"
+      AUTORUN_LARAVEL_STORAGE_LINK: "true"
+      AUTORUN_LARAVEL_EVENT_CACHE: "false"
+      AUTORUN_LARAVEL_ROUTE_CACHE: "false"
+      AUTORUN_LARAVEL_VIEW_CACHE: "false"
+      AUTORUN_LARAVEL_CONFIG_CACHE: "true"
+      PHP_POST_MAX_SIZE: "500M"
+      PHP_UPLOAD_MAX_FILE_SIZE: "500M"
+      PHP_OPCACHE_ENABLE: "1"
+      REVERB_SERVER_HOST: "0.0.0.0"
+      REVERB_SERVER_PORT: "8080"
+      CADDY_EMAIL: "${CADDY_EMAIL}"
+      APP_DOMAIN: "${APP_DOMAIN}"
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    depends_on:
+      - mysqldb
+      - redis
+    healthcheck:
+      test: ["CMD", "php", "artisan", "reverb:status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - loops-network
 
