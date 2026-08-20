@@ -1,4 +1,4 @@
-# Loops
+# SUR-N-SWAG
 
 <p align="center">
   <strong>The short video sharing platform for the social web.</strong>
@@ -47,19 +47,19 @@
 </p>
 
 <p align="center">
-  <img src="./screenshot.png" alt="The Loops short-video platform" />
+  <img src="./screenshot.png" alt="The SUR-N-SWAG short-video platform" />
 </p>
 
-## About Loops
+## About SUR-N-SWAG
 
-Loops is a federated, open-source platform for sharing short videos. It gives creators and communities a modern short-video experience without locking them into a centralized platform.
+SUR-N-SWAG is a federated, open-source platform for sharing short videos. It gives creators and communities a modern short-video experience without locking them into a centralized platform.
 
-This repository contains the Loops server and web application. Communities can operate their own Loops instance while connecting with people across Loops, Pixelfed, Mastodon, and other compatible ActivityPub platforms.
+This repository contains the SUR-N-SWAG server and web application. Communities can operate their own SUR-N-SWAG instance while connecting with people across SUR-N-SWAG, Pixelfed, Mastodon, and other compatible ActivityPub platforms.
 
 ## Highlights
 
 - **Federated by design** — connect and interact across the open social web using ActivityPub.
-- **Self-hostable** — run an independent Loops server for your community.
+- **Self-hostable** — run an independent SUR-N-SWAG server for your community.
 - **Creator-friendly** — share short videos without advertising-driven platform incentives.
 - **Community-controlled** — each server can establish its own rules, policies, and moderation practices.
 - **Modern discovery** — explore Following and For You feeds, hashtags, profiles, and videos.
@@ -69,19 +69,19 @@ This repository contains the Loops server and web application. Communities can o
 
 ## Getting Started
 
-### Install Loops
+### Install SUR-N-SWAG
 
-To deploy your own Loops server, see the [installation guide](INSTALLATION.md).
+To deploy your own SUR-N-SWAG server, see the [installation guide](INSTALLATION.md).
 
 A Docker-based setup is also available in the [Docker Compose setup guide](DOCKER_COMPOSE_SETUP.md).
 
 ### Federation
 
-See the [federation documentation](FEDERATION.md) for information about Loops and ActivityPub interoperability.
+See the [federation documentation](FEDERATION.md) for information about SUR-N-SWAG and ActivityPub interoperability.
 
 ### API
 
-The Loops API is an open, publicly documented JSON REST API secured with OAuth 2.0. No partnership, application, or prior approval is required to build clients, integrations, and new experiences for the Loops ecosystem.
+The SUR-N-SWAG API is an open, publicly documented JSON REST API secured with OAuth 2.0. No partnership, application, or prior approval is required to build clients, integrations, and new experiences for the SUR-N-SWAG ecosystem.
 
 - [Developer documentation](https://joinloops.org/developers)
 - [Complete API reference](https://docs.joinloops.org)
@@ -98,13 +98,13 @@ Before participating, please read the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Translations
 
-Help make Loops available to more communities and languages through [Crowdin](https://crowdin.com/project/loops).
+Help make SUR-N-SWAG available to more communities and languages through [Crowdin](https://crowdin.com/project/loops).
 
 See the [translation guide](TRANSLATING.md) for contribution instructions.
 
 ## Community
 
-Connect with the Loops community:
+Connect with the SUR-N-SWAG community:
 
 - **Website:** [joinloops.org](https://joinloops.org)
 - **Blog:** [blog.joinloops.org](https://blog.joinloops.org)
@@ -115,29 +115,12 @@ Connect with the Loops community:
 
 ## Funding
 
-Loops is funded in part through [NGI Zero Core](https://nlnet.nl/core), a fund established by [NLnet](https://nlnet.nl) with support from the European Commission's [Next Generation Internet](https://ngi.eu) program.
+SUR-N-SWAG is funded in part through [NGI Zero Core](https://nlnet.nl/core), a fund established by [NLnet](https://nlnet.nl) with support from the European Commission's [Next Generation Internet](https://ngi.eu) program.
 
 Learn more on the [NLnet Loops project page](https://nlnet.nl/project/Loops).
 
-<p>
-  <a href="https://nlnet.nl">
-    <img src="https://nlnet.nl/logo/banner.png" alt="NLnet Foundation" width="20%" />
-  </a>
-  <a href="https://nlnet.nl/core">
-    <img src="https://nlnet.nl/image/logos/NGI0_tag.svg" alt="NGI Zero Core" width="20%" />
-  </a>
-</p>
-
-## Supporters
-
-Thanks to the [Fastly Fast Forward](https://www.fastly.com/fast-forward) program, Loops uses Fastly CDN and Object Storage to serve videos globally.
-
-<p>
-  <a href="https://www.fastly.com/fast-forward">
-    <img src="https://github.com/user-attachments/assets/f1499b1f-c05f-480a-a5d5-dbebcb0e20fd" alt="Fastly Fast Forward" width="50%" />
-  </a>
-</p>
+Thanks to the [Fastly Fast Forward](https://www.fastly.com/fast-forward) program, SUR-N-SWAG uses Fastly CDN and Object Storage to serve videos globally.
 
 ## License
 
-Loops Server is open-source software licensed under the [GNU Affero General Public License v3.0](LICENSE).
+SUR-N-SWAG Server is open-source software licensed under the [GNU Affero General Public License v3.0](LICENSE).

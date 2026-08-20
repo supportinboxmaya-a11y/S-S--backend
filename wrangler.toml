@@ -6,10 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 # Cloudflare Account
 account_id = "488a8034477677c405fd7f66ee013c24"
 
-# D1 Database (MANUAL STEP REQUIRED - tokens lack D1 permissions)
-# Create via: https://dash.cloudflare.com/ → D1 SQL Database → Create database → Name: loops-db
-# Then update database_id below
-# database_id = ""
+# D1 Database
+database_id = "efa9e8a4-31b2-466f-b103-74fcb0a08c39"
 
 # R2 Bucket (CREATED)
 r2_buckets = [

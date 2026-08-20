@@ -1,6 +1,6 @@
-# Loops Installation Guide
+# SUR-N-SWAG Installation Guide
 
-Loops is a TikTok-like video sharing platform (with [ActivityPub](https://activitypub.rocks) federation) built with Laravel. This guide covers installation, configuration, and deployment.
+SUR-N-SWAG is a TikTok-like video sharing platform (with [ActivityPub](https://activitypub.rocks) federation) built with Laravel. This guide covers installation, configuration, and deployment.
 
 ## System Requirements
 
@@ -76,7 +76,7 @@ Edit `.env` file with your settings:
 
 ```env
 # Application
-APP_NAME="Loops"
+APP_NAME="SUR-N-SWAG"
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
@@ -112,7 +112,7 @@ MAIL_FROM_ADDRESS="hello@example.com"
 MAIL_FROM_NAME="${APP_NAME}"
 
 # Storage
-# Loops uses S3-compatible storage by default. To use S3, uncomment and fill
+# SUR-N-SWAG uses S3-compatible storage by default. To use S3, uncomment and fill
 # in the values below. To run on local disk instead, leave them commented and
 # see "Using Local Storage Instead of S3" below.
 # AWS_ACCESS_KEY_ID=
@@ -130,9 +130,9 @@ FFPROBE_BINARIES=/usr/bin/ffprobe
 ## Using Local Storage Instead of S3
 
 > [!NOTE]
-> By default Loops stores avatars and videos on S3-compatible storage. If you'd rather keep everything on your server's local disk, the steps below switch storage over with a single config change — no code modifications required.
+> By default SUR-N-SWAG stores avatars and videos on S3-compatible storage. If you'd rather keep everything on your server's local disk, the steps below switch storage over with a single config change — no code modifications required.
 
-Loops resolves its media disk by the name `s3`. Avatars, videos, and thumbnails are all read and written through `Storage::disk('s3')` and the FFmpeg processing pipeline. Because Laravel disks are just named configuration entries, you can repoint that name at the `local` driver and every storage call will use your server's filesystem instead of an S3 bucket.
+SUR-N-SWAG resolves its media disk by the name `s3`. Avatars, videos, and thumbnails are all read and written through `Storage::disk('s3')` and the FFmpeg processing pipeline. Because Laravel disks are just named configuration entries, you can repoint that name at the `local` driver and every storage call will use your server's filesystem instead of an S3 bucket.
 
 ### 1. Redefine the `s3` Disk
 
@@ -214,7 +214,7 @@ php artisan passport:keys
 
 ## Queue Configuration
 
-Loops uses Redis-backed queues with Horizon for queue management.
+SUR-N-SWAG uses Redis-backed queues with Horizon for queue management.
 
 ### 1. Publish Horizon Configuration
 
@@ -248,7 +248,7 @@ stopwaitsecs=3600
 
 ## Mail Configuration
 
-Loops supports multiple mail providers. Configure one of the following:
+SUR-N-SWAG supports multiple mail providers. Configure one of the following:
 
 ### SMTP
 
@@ -296,7 +296,7 @@ RESEND_KEY=your-api-key
 
 ### Captcha Protection
 
-Loops supports Cloudflare Turnstile and hCaptcha for spam protection.
+SUR-N-SWAG supports Cloudflare Turnstile and hCaptcha for spam protection.
 
 #### Cloudflare Turnstile
 
@@ -451,7 +451,7 @@ memory_limit = 512M
 
 ## Updates
 
-To update Loops:
+To update SUR-N-SWAG:
 
 ```bash
 # Pull latest changes

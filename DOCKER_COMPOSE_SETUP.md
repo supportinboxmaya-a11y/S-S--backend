@@ -1,4 +1,4 @@
-# Loops Docker Compose Setup with serversideup/php container
+# SUR-N-SWAG Docker Compose Setup with serversideup/php container
 
 This setup uses `serversideup/php` (FrankenPHP) as the base image and is designed to work behind a reverse proxy like Caddy, Nginx, Traefik, Cloudflare Tunnel, etc for HTTPS termination.
 

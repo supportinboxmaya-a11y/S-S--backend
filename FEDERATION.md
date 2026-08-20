@@ -1,10 +1,10 @@
 # Federation Documentation
 
-This document outlines the ActivityPub federation implementation in Loops, including supported activities, actors, and discovery mechanisms.
+This document outlines the ActivityPub federation implementation in SUR-N-SWAG, including supported activities, actors, and discovery mechanisms.
 
 ## Overview
 
-Loops implements the ActivityPub protocol to enable federation with other ActivityPub-compatible platforms. This allows users to follow, interact with, and share content across the fediverse.
+SUR-N-SWAG implements the ActivityPub protocol to enable federation with other ActivityPub-compatible platforms. This allows users to follow, interact with, and share content across the fediverse.
 
 ## Protocol Support
 
