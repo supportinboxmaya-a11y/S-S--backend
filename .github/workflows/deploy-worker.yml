@@ -1,0 +1,60 @@
+name: Deploy Cloudflare Worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - 'wrangler.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'worker/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./worker
+        run: npm ci
+
+      - name: Type check
+        working-directory: ./worker
+        run: npm run typecheck
+
+      - name: Lint
+        working-directory: ./worker
+        run: npm run lint
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          environment: production
+          workingDirectory: ./worker
+          command: deploy --env production
+
+      - name: Apply D1 migrations
+        if: success()
+        run: |
+          cd worker
+          npx wrangler d1 migrations apply sur-n-swag-db --remote
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
