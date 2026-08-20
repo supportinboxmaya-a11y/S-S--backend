@@ -48,7 +48,7 @@ crons = [
 
 # Environment variables (non-secret)
 [vars]
-APP_NAME = "Loops"
+APP_NAME = "SUR-N-SWAG"
 APP_ENV = "production"
 LOG_LEVEL = "info"
 CORS_ALLOWED_ORIGIN = "https://yourdomain.com"
@@ -72,4 +72,4 @@ REVERB_SCHEME = "https"
 # - APPLE_PRIVATE_KEY
 # - OAUTH_CLIENT_SECRET
 # - OAUTH_CLIENT_ID
-# - STRIPE_WEBHOOK_SECRET
+# - STRIPE_WEBHOOK_SECRET# Deploy workflow triggered
