@@ -1,0 +1,74 @@
+name = "loops-api"
+main = "src/index.ts"
+compatibility_date = "2024-08-20"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare Account
+account_id = "488a8034477677c405fd7f66ee013c24"
+
+# D1 Database (will be created)
+# database_id = ""
+
+# R2 Bucket
+r2_buckets = [
+  { binding = "R2_BUCKET", bucket_name = "mayastore" }
+]
+
+# KV Namespaces
+kv_namespaces = [
+  { binding = "KV_CACHE", id = "" },
+  { binding = "KV_SESSIONS", id = "" },
+  { binding = "KV_RATE_LIMIT", id = "" }
+]
+
+# Queues
+queues = [
+  { binding = "QUEUE_VIDEO_PROCESSING", queue_name = "video-processing" },
+  { binding = "QUEUE_NOTIFICATIONS", queue_name = "notifications" },
+  { binding = "QUEUE_EMAILS", queue_name = "emails" },
+  { binding = "QUEUE_FEED_MAINTENANCE", queue_name = "feed-maintenance" },
+  { binding = "QUEUE_ANALYTICS", queue_name = "analytics" }
+]
+
+# Durable Objects
+durable_objects = [
+  { name = "DM_Room", class_name = "DmRoom" },
+  { name = "Presence", class_name = "PresenceManager" },
+  { name = "RealtimeCounter", class_name = "RealtimeCounter" }
+]
+
+# Cron Triggers
+[triggers]
+crons = [
+  "0 2 * * *",    # Daily cleanup at 2 AM
+  "0 */6 * * *",  # Feed maintenance every 6 hours
+  "0 */1 * * *",  # Analytics aggregation hourly
+  "0 3 * * 0",    # Weekly cleanup Sunday 3 AM
+]
+
+# Environment variables (non-secret)
+[vars]
+APP_NAME = "Loops"
+APP_ENV = "production"
+LOG_LEVEL = "info"
+CORS_ALLOWED_ORIGIN = "https://yourdomain.com"
+MUSIC_PROVIDER = "audius"
+AUDIUS_API_URL = "https://api.audius.co"
+AUDIUS_DISCOVERY_PROVIDER = "https://discoveryprovider.audius.co"
+REVERB_SCHEME = "https"
+
+# Secrets must be set via: wrangler secret put SECRET_NAME
+# Required secrets:
+# - APP_KEY
+# - DB_PASSWORD (for any external DB if needed)
+# - JWT_SECRET
+# - MAIL_PASSWORD
+# - AWS_ACCESS_KEY_ID
+# - AWS_SECRET_ACCESS_KEY
+# - REVERB_APP_ID
+# - REVERB_APP_KEY
+# - REVERB_APP_SECRET
+# - APPLE_TEAM_ID
+# - APPLE_KEY_ID
+# - APPLE_PRIVATE_KEY
+# - OAUTH_CLIENT_SECRET

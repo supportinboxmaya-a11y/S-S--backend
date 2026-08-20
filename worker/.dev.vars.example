@@ -1,0 +1,39 @@
+# Cloudflare Workers Environment Configuration
+
+# D1 Database
+# database_id = ""
+
+# R2 Bucket
+# r2_bucket_name = "mayastore"
+
+# KV Namespaces
+# kv_cache_id = ""
+# kv_sessions_id = ""
+# kv_rate_limit_id = ""
+
+# Queue Names
+# queue_video_processing = "video-processing"
+# queue_notifications = "notifications"
+# queue_emails = "emails"
+# queue_feed_maintenance = "feed-maintenance"
+# queue_analytics = "analytics"
+
+# Durable Objects
+# dm_room_namespace = "DM_Room"
+# presence_namespace = "Presence"
+# realtime_counter_namespace = "RealtimeCounter"
+
+# Secrets (set via wrangler secret put)
+# APP_KEY
+# JWT_SECRET
+# MAIL_PASSWORD
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+# REVERB_APP_ID
+# REVERB_APP_KEY
+# REVERB_APP_SECRET
+# APPLE_TEAM_ID
+# APPLE_KEY_ID
+# APPLE_PRIVATE_KEY
+# OAUTH_CLIENT_SECRET
+# OAUTH_CLIENT_ID
