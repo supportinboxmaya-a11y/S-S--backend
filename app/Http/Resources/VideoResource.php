@@ -79,6 +79,10 @@ class VideoResource extends JsonResource
                 'count' => 0,
                 'key' => (string) Str::uuid(),
                 'sound_id' => $this->sound_id ? (string) $this->sound_id : null,
+                'provider_track_id' => $this->provider_track_id ?? null,
+                'music_provider' => $this->music_provider ?? null,
+                'music_metadata' => $this->music_metadata ?? null,
+                'music_licensing' => $this->music_licensing ?? null,
             ],
             'meta' => [
                 'contains_ai' => $this->contains_ai,

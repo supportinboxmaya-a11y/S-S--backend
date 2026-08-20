@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Music\MusicService;
 use App\Services\UserActivityService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -41,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton('denylist_url', function () {
             return 'https://about.iftas.org/wp-content/uploads/2025/10/iftas-dni-latest.csv';
+        });
+
+        $this->app->singleton(MusicService::class, function () {
+            return new MusicService();
         });
     }
 
@@ -176,6 +181,18 @@ class AppServiceProvider extends ServiceProvider
 
             return [
                 Limit::perMinute(15)->by($user->id),
+            ];
+        });
+
+        RateLimiter::for('music', function ($request) {
+            $user = $request->user();
+            if ($user->is_admin) {
+                return;
+            }
+
+            return [
+                Limit::perMinute(30)->by($user->id),
+                Limit::perHour(300)->by($user->id),
             ];
         });
 

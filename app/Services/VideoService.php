@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Video;
+use App\Services\AutoLinkerService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -114,6 +115,13 @@ class VideoService
                     'height' => $video->height ?? 1280,
                     'thumbnail' => $thumb,
                     'src_url' => $mediaUrl,
+                ],
+                'audio' => [
+                    'sound_id' => $video->sound_id ? (string) $video->sound_id : null,
+                    'provider_track_id' => $video->provider_track_id ?? null,
+                    'music_provider' => $video->music_provider ?? null,
+                    'music_metadata' => $video->music_metadata ?? null,
+                    'music_licensing' => $video->music_licensing ?? null,
                 ],
             ];
         });

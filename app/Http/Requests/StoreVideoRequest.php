@@ -76,6 +76,11 @@ class StoreVideoRequest extends FormRequest
                 'string',
                 Rule::in(app(IntlService::class)->keys()),
             ],
+            'sound_id' => 'nullable|sometimes|exists:video_sounds,id',
+            'provider_track_id' => 'nullable|sometimes|string|max:255',
+            'music_provider' => 'nullable|sometimes|string|max:50',
+            'music_metadata' => 'nullable|sometimes|array',
+            'music_licensing' => 'nullable|sometimes|array',
         ];
     }
 

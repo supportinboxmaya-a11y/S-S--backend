@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\ExploreController;
 use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\ForYouFeedController;
 use App\Http\Controllers\Api\KlipyController;
+use App\Http\Controllers\Api\MusicController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SettingsController;
@@ -118,6 +119,15 @@ Route::middleware(['auth:web,api'])
     ->group(function () {
         Route::get('{type}/trending', [KlipyController::class, 'trending'])->name('klipy.trending');
         Route::get('{type}/search', [KlipyController::class, 'search'])->middleware('throttle:klipy')->name('klipy.search');
+    });
+
+Route::middleware(['auth:web,api'])
+    ->prefix('api/v1/music')
+    ->group(function () {
+        Route::get('search', [MusicController::class, 'search'])->middleware('throttle:music')->name('music.search');
+        Route::get('trending', [MusicController::class, 'trending'])->middleware('throttle:music')->name('music.trending');
+        Route::get('{id}', [MusicController::class, 'show'])->middleware('throttle:api')->name('music.show');
+        Route::get('{id}/licensing', [MusicController::class, 'licensing'])->middleware('throttle:api')->name('music.licensing');
     });
 
 Route::middleware(['auth:web,api'])

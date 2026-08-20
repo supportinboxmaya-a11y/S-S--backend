@@ -157,6 +157,18 @@ class VideoController extends Controller
             $model->lang = $request->filled('lang') ? $request->input('lang') : null;
             // @phpstan-ignore-next-line
             $model->media_metadata = $videoMeta;
+
+            // Handle music/sound selection
+            if ($request->filled('sound_id')) {
+                $model->sound_id = $request->input('sound_id');
+            }
+            if ($request->filled('provider_track_id')) {
+                $model->provider_track_id = $request->input('provider_track_id');
+                $model->music_provider = $request->filled('music_provider') ? $request->input('music_provider') : config('music.provider', 'audius');
+                $model->music_metadata = $request->filled('music_metadata') ? $request->input('music_metadata') : null;
+                $model->music_licensing = $request->filled('music_licensing') ? $request->input('music_licensing') : null;
+            }
+
             $model->save();
 
             if ($request->filled('scheduled_at')) {

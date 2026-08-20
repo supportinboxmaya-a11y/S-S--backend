@@ -213,6 +213,10 @@ class Video extends Model
             'publishing_at' => 'datetime',
             'ap_published_at' => 'datetime',
             'publish_state' => 'integer',
+            'provider_track_id' => 'string',
+            'music_provider' => 'string',
+            'music_metadata' => 'array',
+            'music_licensing' => 'array',
         ];
     }
 
