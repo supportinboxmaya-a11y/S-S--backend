@@ -7,6 +7,25 @@ import { sign, verify } from 'hono/jwt'
 import { validateBody } from '../middleware/validation'
 import { AppError } from '../middleware/error-handler'
 
+// OAuth App registration schema
+const registerAppSchema = z.object({
+  client_name: z.string().min(1).max(100),
+  redirect_uris: z.array(z.string().url()).min(1),
+  scopes: z.string().optional(),
+  website: z.string().url().optional(),
+})
+
+// OAuth token exchange schema
+const tokenExchangeSchema = z.object({
+  grant_type: z.enum(['authorization_code', 'refresh_token']),
+  client_id: z.string(),
+  client_secret: z.string(),
+  redirect_uri: z.string().url().optional(),
+  code: z.string().optional(),
+  refresh_token: z.string().optional(),
+  scope: z.string().optional(),
+})
+
 export const authRoutes = new Hono<Env>()
 
 // Request schemas
@@ -407,4 +426,192 @@ authRoutes.get('/me', async (c: Context<Env>) => {
       profile: profile || null,
     },
   })
+})
+
+// POST /api/v1/apps - Register OAuth application
+authRoutes.post('/apps', validateBody(registerAppSchema), async (c: Context<Env>) => {
+  const db = createDbClient(c.env)
+  const { client_name, redirect_uris, scopes, website } = c.get('validatedBody')
+
+  const clientId = crypto.randomUUID()
+  const clientSecret = crypto.randomUUID()
+
+  await db.exec(
+    `INSERT INTO oauth_clients (id, client_id, client_secret, client_name, redirect_uris, scopes, website, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())`,
+    [crypto.randomUUID(), clientId, clientSecret, client_name, JSON.stringify(redirect_uris), scopes || 'user:read user:write video:create video:read', website || null]
+  )
+
+  return c.json({
+    id: clientId,
+    client_id: clientId,
+    client_secret: clientSecret,
+    client_name,
+    redirect_uris,
+    scopes: scopes || 'user:read user:write video:create video:read',
+    website,
+    created_at: new Date().toISOString(),
+  }, 201)
+})
+
+// GET /oauth/authorize - OAuth authorization page
+authRoutes.get('/oauth/authorize', async (c: Context<Env>) => {
+  const { client_id, redirect_uri, scope, response_type, state } = c.req.query()
+
+  if (!client_id || !redirect_uri || response_type !== 'code') {
+    return c.json({ error: 'Invalid request' }, 400)
+  }
+
+  // Verify client exists
+  const client = await createDbClient(c.env).queryOne(
+    'SELECT * FROM oauth_clients WHERE client_id = ? AND revoked = 0',
+    [client_id]
+  )
+
+  if (!client) {
+    return c.json({ error: 'Invalid client' }, 400)
+  }
+
+  // Verify redirect_uri is allowed
+  const allowedUris = JSON.parse(client.redirect_uris)
+  if (!allowedUris.includes(redirect_uri)) {
+    return c.json({ error: 'Invalid redirect_uri' }, 400)
+  }
+
+  // In a real implementation, you'd show a consent page here
+  // For now, we'll auto-approve and redirect with code
+  // In production, you'd show a consent page and get user approval
+
+  const authCode = crypto.randomUUID()
+  const expiresAt = Date.now() + 10 * 60 * 1000 // 10 minutes
+
+  await createDbClient(c.env).exec(
+    `INSERT INTO oauth_auth_codes (id, client_id, user_id, redirect_uri, scopes, code, expires_at, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, unixepoch())`,
+    [crypto.randomUUID(), client.client_id, 'TODO_USER_ID', redirect_uri, scope || 'user:read user:write video:create video:read', authCode, Math.floor(expiresAt / 1000)]
+  )
+
+  const redirectUrl = new URL(redirect_uri)
+  redirectUrl.searchParams.set('code', authCode)
+  if (state) redirectUrl.searchParams.set('state', state)
+
+  return c.redirect(redirectUrl.toString())
+})
+
+// POST /oauth/token - Exchange code for token
+authRoutes.post('/oauth/token', validateBody(tokenExchangeSchema), async (c: Context<Env>) => {
+  const { grant_type, client_id, client_secret, redirect_uri, code, refresh_token, scope } = c.get('validatedBody')
+
+  const db = createDbClient(c.env)
+
+  // Verify client
+  const client = await db.queryOne(
+    'SELECT * FROM oauth_clients WHERE client_id = ? AND client_secret = ? AND revoked = 0',
+    [client_id, client_secret]
+  )
+
+  if (!client) {
+    return c.json({ error: 'Invalid client credentials' }, 401)
+  }
+
+  if (grant_type === 'authorization_code') {
+    if (!code || !redirect_uri) {
+      return c.json({ error: 'Missing code or redirect_uri' }, 400)
+    }
+
+    // Verify auth code
+    const authCode = await db.queryOne(
+      'SELECT * FROM oauth_auth_codes WHERE code = ? AND client_id = ? AND expires_at > unixepoch()',
+      [code, client_id]
+    )
+
+    if (!authCode) {
+      return c.json({ error: 'Invalid or expired authorization code' }, 400)
+    }
+
+    // Verify redirect_uri matches
+    if (authCode.redirect_uri !== redirect_uri) {
+      return c.json({ error: 'Invalid redirect_uri' }, 400)
+    }
+
+    // Get user (from authCode.user_id)
+    const user = await db.queryOne(
+      'SELECT id, email, profile_id, is_admin, username FROM users WHERE id = ?',
+      [authCode.user_id]
+    )
+
+    if (!user) {
+      return c.json({ error: 'User not found' }, 404)
+    }
+
+    // Delete used auth code
+    await db.exec('DELETE FROM oauth_auth_codes WHERE id = ?', [authCode.id])
+
+    // Generate tokens
+    const tokens = await generateTokens({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      profileId: user.profile_id,
+      isAdmin: Boolean(user.is_admin),
+    }, c.env)
+
+    // Store refresh token
+    await db.exec(
+      `INSERT INTO oauth_refresh_tokens (id, access_token_id, revoked, expires_at, created_at)
+       VALUES (?, ?, 0, unixepoch() + 31536000, unixepoch())`,
+      [crypto.randomUUID(), tokens.refreshToken] // This is a placeholder - need proper token ID linking
+    )
+
+    return c.json({
+      access_token: tokens.accessToken,
+      token_type: 'Bearer',
+      expires_in: 2592000, // 30 days
+      refresh_token: tokens.refreshToken,
+      scope: scope || 'user:read user:write video:create video:read',
+    })
+  }
+
+  if (grant_type === 'refresh_token') {
+    if (!refresh_token) {
+      return c.json({ error: 'Missing refresh_token' }, 400)
+    }
+
+    try {
+      const payload = await verify(refresh_token, c.env.JWT_SECRET)
+
+      if (!payload || payload.type !== 'refresh') {
+        throw new Error('Invalid refresh token')
+      }
+
+      const user = await db.queryOne(
+        'SELECT id, email, profile_id, is_admin, username FROM users WHERE id = ?',
+        [payload.sub]
+      )
+
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      const tokens = await generateTokens({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        profileId: user.profile_id,
+        isAdmin: Boolean(user.is_admin),
+      }, c.env)
+
+      return c.json({
+        access_token: tokens.accessToken,
+        token_type: 'Bearer',
+        expires_in: 2592000,
+        refresh_token: tokens.refreshToken,
+        scope: scope || 'user:read user:write video:create video:read',
+      })
+    } catch {
+      return c.json({ error: 'Invalid refresh token' }, 401)
+    }
+  }
+
+  return c.json({ error: 'Unsupported grant_type' }, 400)
 })

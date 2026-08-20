@@ -137,6 +137,23 @@ export async function initSchema(env: Env): Promise<void> {
     );
 
     CREATE INDEX IF NOT EXISTS idx_oauth_refresh_tokens_access ON oauth_refresh_tokens(access_token_id);
+
+    CREATE TABLE IF NOT EXISTS oauth_auth_codes (
+      id TEXT PRIMARY KEY,
+      client_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      redirect_uri TEXT NOT NULL,
+      scopes TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER DEFAULT (unixepoch()),
+      FOREIGN KEY (client_id) REFERENCES oauth_clients(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_oauth_auth_codes_code ON oauth_auth_codes(code);
+    CREATE INDEX IF NOT EXISTS idx_oauth_auth_codes_client ON oauth_auth_codes(client_id);
+    CREATE INDEX IF NOT EXISTS idx_oauth_auth_codes_expires ON oauth_auth_codes(expires_at);
   `)
 
   // Profiles
@@ -646,6 +663,37 @@ export async function initSchema(env: Env): Promise<void> {
       version INTEGER DEFAULT 1,
       updated_at INTEGER DEFAULT (unixepoch())
     );
+  `)
+
+  // Email Changes
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS email_changes (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      new_email TEXT NOT NULL,
+      token TEXT NOT NULL UNIQUE,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER DEFAULT (unixepoch()),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_email_changes_token ON email_changes(token);
+    CREATE INDEX IF NOT EXISTS idx_email_changes_expires ON email_changes(expires_at);
+  `)
+
+  // Password Resets
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      token TEXT NOT NULL UNIQUE,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER DEFAULT (unixepoch()),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets(token);
+    CREATE INDEX IF NOT EXISTS idx_password_resets_expires ON password_resets(expires_at);
   `)
 
   // Feed Feedback (for ML)
